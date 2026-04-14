@@ -26,7 +26,8 @@ jobs:
             // Keep last 72 h = 288 points at 15-min intervals
             const keep   = Math.min(288, total);
             const slice  = series.data.slice(total - keep);
-            const t0     = new Date(d.startTime).getTime() + (total - keep) * series.pointInterval * 60000;
+            // Metro Vancouver timestamps are BC local time (UTC-7); append offset so JS parses correctly
+            const t0     = new Date(d.startTime + '-07:00').getTime() + (total - keep) * series.pointInterval * 60000;
             const out = {
               current:         slice[slice.length - 1],
               max:             series.max,

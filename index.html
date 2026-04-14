@@ -378,12 +378,19 @@ async function drawTrendChart() {
   const ml = 36, mr = 46, mt = 16, mb = 34;
   const pw = W - ml - mr, ph = H - mt - mb;
 
-  const TIDE_MAX  = 6.0;
-  const RIVER_MAX = riverData?.max || 3.5;
+  const TIDE_MAX = 6.0;
+
+  // Dynamic river axis: zoom to actual visible range + 50% padding each side
+  const rVals       = riverPoints.map(p => p.v);
+  const rMin        = rVals.length ? Math.min(...rVals) : 0;
+  const rMax        = rVals.length ? Math.max(...rVals) : 1;
+  const rPad        = Math.max(0.05, (rMax - rMin) * 0.5);
+  const riverAxisLo = Math.max(0, rMin - rPad);
+  const riverAxisHi = rMax + rPad;
 
   const xPx  = t => ml + (t - startMs) / (endMs - startMs) * pw;
   const tyPx = v => mt + ph * (1 - v / TIDE_MAX);
-  const ryPx = v => mt + ph * (1 - v / RIVER_MAX);
+  const ryPx = v => mt + ph * (1 - (v - riverAxisLo) / (riverAxisHi - riverAxisLo));
   const f    = n => n.toFixed(1);
 
   let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">`;
@@ -470,11 +477,15 @@ async function drawTrendChart() {
   const midY = f(mt + ph / 2);
   s += `<text transform="rotate(-90 11 ${midY})" x="11" y="${midY}" text-anchor="middle" font-size="10" fill="#506690">Tide (m)</text>`;
 
-  // Right axis labels (river scale)
-  for (let m = 0; m <= Math.ceil(RIVER_MAX); m++) {
-    const y = ryPx(m);
-    if (y < mt - 2 || y > mt + ph + 2) continue;
-    s += `<text x="${ml+pw+4}" y="${f(y+3.5)}" font-size="10" fill="#fd7e14">${m}</text>`;
+  // Right axis labels (river scale — dynamic, zoomed to visible range)
+  const rSpan   = riverAxisHi - riverAxisLo;
+  const rStep   = rSpan > 1 ? 0.5 : rSpan > 0.4 ? 0.2 : rSpan > 0.1 ? 0.05 : 0.02;
+  let   rTick   = Math.ceil(riverAxisLo / rStep) * rStep;
+  while (rTick <= riverAxisHi + 0.001) {
+    const y = ryPx(rTick);
+    if (y >= mt - 2 && y <= mt + ph + 2)
+      s += `<text x="${ml+pw+4}" y="${f(y+3.5)}" font-size="10" fill="#fd7e14">${rTick.toFixed(2)}</text>`;
+    rTick = Math.round((rTick + rStep) * 1000) / 1000;
   }
   const rAxisX = W - 10;
   s += `<text transform="rotate(90 ${rAxisX} ${midY})" x="${rAxisX}" y="${midY}" text-anchor="middle" font-size="10" fill="#fd7e14">River (m)</text>`;
