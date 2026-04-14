@@ -210,6 +210,17 @@ input[type="month"] {
 .river-trend-badge.falling { background: #f8d7da; color: #58151c; }
 .river-trend-badge.stable  { background: #e9ecef; color: #495057; }
 
+.rock-status-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.1em 0.45em;
+  border-radius: 3px;
+}
+.rock-status-badge.rock-on    { background: #d1e7dd; color: #0a3622; }
+.rock-status-badge.rock-close { background: #fff3cd; color: #664d03; }
+.rock-status-badge.rock-low   { background: #e9ecef; color: #495057; }
+
 .trend-gauge-link {
   font-size: 0.78rem;
   color: #335EEA;

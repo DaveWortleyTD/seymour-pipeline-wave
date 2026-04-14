@@ -30,6 +30,7 @@
           <strong id="river-level-value">—</strong>
           <span id="river-level-time" class="river-level-time"></span>
           <span id="river-trend-badge" class="river-trend-badge"></span>
+          <span id="rock-status-badge" class="rock-status-badge"></span>
         </div>
         <a class="trend-gauge-link" href="https://metrovancouver.org/services/water/seymour-and-capilano-river-levels" target="_blank">Full gauge →</a>
       </div>
@@ -345,11 +346,28 @@ async function drawTrendChart() {
     ]);
   } catch { /* show whatever data we have */ }
 
+  // Rock gauge thresholds (scatter plot correlation: rock 5 ≈ 1.15 m, rock 6 ≈ 1.25 m)
+  const ROCK_ON    = 1.25;  // rock gauge ≥ 6 — wave likely on
+  const ROCK_CLOSE = 1.05;  // rock gauge ~4-5 — getting close
+
   // Update river level header
   if (riverData?.current != null) {
     document.getElementById('river-level-value').textContent = `${riverData.current.toFixed(2)} m`;
     if (riverData.fetched)
       document.getElementById('river-level-time').textContent = `as of ${fmtTime(new Date(riverData.fetched))}`;
+
+    const level = riverData.current;
+    const rockBadge = document.getElementById('rock-status-badge');
+    if (level >= ROCK_ON) {
+      rockBadge.textContent = '✓ River is on';
+      rockBadge.className = 'rock-status-badge rock-on';
+    } else if (level >= ROCK_CLOSE) {
+      rockBadge.textContent = '↑ Getting close';
+      rockBadge.className = 'rock-status-badge rock-close';
+    } else {
+      rockBadge.textContent = `River too low (needs ~${ROCK_ON} m)`;
+      rockBadge.className = 'rock-status-badge rock-low';
+    }
   }
 
   // Build river data points within chart range
@@ -489,6 +507,20 @@ async function drawTrendChart() {
   }
   const rAxisX = W - 10;
   s += `<text transform="rotate(90 ${rAxisX} ${midY})" x="${rAxisX}" y="${midY}" text-anchor="middle" font-size="10" fill="#fd7e14">River (m)</text>`;
+
+  // Wave threshold marker on river axis (1.25 m = rock gauge 6)
+  if (ROCK_ON >= riverAxisLo && ROCK_ON <= riverAxisHi) {
+    // Threshold is within the visible river axis — draw a dashed line
+    const ty = ryPx(ROCK_ON);
+    s += `<line x1="${ml}" y1="${f(ty)}" x2="${ml+pw}" y2="${f(ty)}" stroke="#28a745" stroke-width="1" stroke-dasharray="4,3" opacity="0.6" clip-path="url(#pc)"/>`;
+    s += `<text x="${ml+pw+4}" y="${f(ty+3.5)}" font-size="9" fill="#28a745" font-weight="600">wave</text>`;
+  } else if (ROCK_ON > riverAxisHi) {
+    // Threshold is above the visible axis — draw an upward arrow at the top-right of the chart
+    const ex = ml + pw + 4;
+    const ey = mt + 4;
+    s += `<text x="${ex}" y="${ey+9}" font-size="8.5" fill="#28a745" font-weight="600">wave</text>`;
+    s += `<text x="${ex}" y="${ey+18}" font-size="8" fill="#28a745">${ROCK_ON}m↑</text>`;
+  }
 
   // Legend (top-left inside plot)
   const lx2 = ml + 8, ly = mt + 6;
