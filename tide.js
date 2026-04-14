@@ -4,7 +4,7 @@
 // reducing tidal backwater in the Seymour River estuary. River flow from the Seymour dam is the
 // primary condition — always check the Metro Vancouver gauge before heading out.
 
-const STATION_ID        = '5dd30650e0fdc4b9b4be6c2d'; // Second Narrows (DFO IWLS)
+const STATION_ID        = '5cebf1e43d0f4a073c4bc434'; // Calamity Point (DFO IWLS) — closest station with tide predictions
 const TIDE_LOCATION_LAT = 49.316;
 const TIDE_LOCATION_LNG = -123.016;  // pipeline wave site, below Mt Seymour Pkwy bridge
 const THRESHOLD_M       = 3.0;       // tide must drop below this (m) for wave to form
