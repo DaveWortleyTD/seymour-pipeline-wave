@@ -155,46 +155,85 @@ input[type="month"] {
 .wave-guide strong { display: block; margin-bottom: 0.25rem; font-weight: 600; }
 .hint { font-weight: 400; color: #506690; font-size: 0.8rem; }
 
-.river-notice {
-  margin-top: 0.5rem;
-  padding: 0.5rem 0.75rem;
+/* ── Trend chart section ──────────────────────────────────────────────────── */
+.trend-section {
+  margin-bottom: 1.25rem;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.trend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.75rem;
+  background: #F9FBFD;
+  border-bottom: 1px solid #dee2e6;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.trend-river-reading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.trend-river-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #506690;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.trend-river-reading strong {
+  font-size: 1.05rem;
+  color: #fd7e14;
+}
+
+.river-level-time {
+  font-size: 0.75rem;
+  color: #506690;
+}
+
+.river-trend-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.1em 0.45em;
+  border-radius: 3px;
+}
+.river-trend-badge.rising  { background: #d1e7dd; color: #0a3622; }
+.river-trend-badge.falling { background: #f8d7da; color: #58151c; }
+.river-trend-badge.stable  { background: #e9ecef; color: #495057; }
+
+.trend-gauge-link {
+  font-size: 0.78rem;
+  color: #335EEA;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.trend-gauge-link:hover { text-decoration: underline; }
+
+.trend-chart {
+  padding: 0.4rem 0.25rem 0.1rem;
+  background: #fff;
+}
+
+/* ── Wave guide note ──────────────────────────────────────────────────────── */
+.wave-guide-note {
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  color: #664d03;
   background: #fff3cd;
   border: 1px solid #ffecb5;
   border-radius: 4px;
-  font-size: 0.82rem;
-  color: #664d03;
-  line-height: 1.6;
+  padding: 0.4rem 0.65rem;
 }
-.river-notice a { color: #495057; }
-
-.river-level-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  margin-top: 0.3rem;
-  flex-wrap: wrap;
-}
-.river-level-time { font-size: 0.75rem; opacity: 0.75; }
-
-.river-bar-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.3rem;
-}
-.river-bar-track {
-  flex: 1;
-  height: 6px;
-  background: rgba(0,0,0,0.12);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.river-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.4s ease;
-}
-.river-bar-max { font-size: 0.72rem; opacity: 0.65; white-space: nowrap; }
+.wave-guide-note a { color: #495057; }
 
 .badge {
   display: inline-block;

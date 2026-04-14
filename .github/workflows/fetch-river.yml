@@ -20,17 +20,20 @@ jobs:
           curl -sf 'https://info.metrovancouver.org/jwup/Charts/SeymourRiverLevel/data.txt' \
             -o /tmp/river.json
           node -e "
-            const d = JSON.parse(require('fs').readFileSync('/tmp/river.json'));
+            const d      = JSON.parse(require('fs').readFileSync('/tmp/river.json'));
             const series = d.dataSeries[0];
-            const lastIdx = series.data.length - 1;
-            const lastTime = new Date(
-              new Date(d.startTime).getTime() + lastIdx * series.pointInterval * 60000
-            );
+            const total  = series.data.length;
+            // Keep last 72 h = 288 points at 15-min intervals
+            const keep   = Math.min(288, total);
+            const slice  = series.data.slice(total - keep);
+            const t0     = new Date(d.startTime).getTime() + (total - keep) * series.pointInterval * 60000;
             const out = {
-              level:   series.data[lastIdx],
-              max:     series.max,
-              time:    lastTime.toISOString(),
-              fetched: new Date().toISOString()
+              current:         slice[slice.length - 1],
+              max:             series.max,
+              fetched:         new Date().toISOString(),
+              startTime:       new Date(t0).toISOString(),
+              intervalMinutes: series.pointInterval,
+              values:          slice,
             };
             require('fs').writeFileSync('river-cache.json', JSON.stringify(out));
           "

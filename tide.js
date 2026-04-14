@@ -112,6 +112,33 @@ async function computeSessions(year, month) {
   return sessions.sort((a, b) => a.peakTime - b.peakTime);
 }
 
+// ── Continuous tide curve (cosine interpolation of hi/lo events) ──────────
+function cosineInterp(t1, v1, t2, v2, t) {
+  const frac = (t - t1) / (t2 - t1);
+  return (v1 + v2) / 2 + (v1 - v2) / 2 * Math.cos(Math.PI * frac);
+}
+
+async function generateTideCurve(startMs, endMs) {
+  const PAD  = 8 * 3600000;
+  const STEP = 15 * 60000;
+  const fmt  = ms => new Date(ms).toISOString().replace('.000', '');
+  const url  = `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/${STATION_ID}/data` +
+               `?time-series-code=wlp-hilo&from=${fmt(startMs - PAD)}&to=${fmt(endMs + PAD)}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`DFO API ${resp.status}`);
+  const json = await resp.json();
+
+  const events = json.map(e => ({ t: new Date(e.eventDate).getTime(), v: parseFloat(e.value) }));
+
+  const points = [];
+  for (let t = startMs; t <= endMs; t += STEP) {
+    const before = [...events].reverse().find(e => e.t <= t);
+    const after  = events.find(e => e.t > t);
+    if (before && after) points.push({ t, v: cosineInterp(before.t, before.v, after.t, after.v, t) });
+  }
+  return points;
+}
+
 // ── NOAA solar calculation ─────────────────────────────────────────────────
 function solarEvents(lat, lng, dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
@@ -178,4 +205,4 @@ function isNightSession(s) {
          s.peakTime < new Date(s.sunrise.getTime() + 60 * 60 * 1000);
 }
 
-export { computeSessions, waveQuality, isNightSession, WAVE_QUALITY };
+export { computeSessions, waveQuality, isNightSession, WAVE_QUALITY, generateTideCurve, solarEvents };
