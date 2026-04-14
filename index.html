@@ -340,7 +340,7 @@ async function drawTrendChart() {
   let tideCurve = [];
   try {
     [riverData, tideCurve] = await Promise.all([
-      fetch('./river-cache.json').then(r => r.json()).catch(() => null),
+      fetch('./river-cache.json', { cache: 'no-store' }).then(r => r.json()).catch(() => null),
       generateTideCurve(startMs, endMs).catch(() => []),
     ]);
   } catch { /* show whatever data we have */ }
