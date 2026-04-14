@@ -16,12 +16,6 @@
   </header>
 
   <main>
-    <div class="nav-row">
-      <button id="prev-btn" class="btn btn-outline">&#8249; <span id="prev-label"></span></button>
-      <input type="month" id="month-picker">
-      <button id="next-btn" class="btn btn-outline"><span id="next-label"></span> &#8250;</button>
-    </div>
-
     <!-- ── 3-day trend chart ──────────────────────────────────────────────── -->
     <div id="trend-section" class="trend-section" hidden>
       <div class="trend-header">
@@ -35,6 +29,12 @@
         <a class="trend-gauge-link" href="https://metrovancouver.org/services/water/seymour-and-capilano-river-levels" target="_blank">Full gauge →</a>
       </div>
       <div id="trend-chart" class="trend-chart"></div>
+    </div>
+
+    <div class="nav-row">
+      <button id="prev-btn" class="btn btn-outline">&#8249; <span id="prev-label"></span></button>
+      <input type="month" id="month-picker">
+      <button id="next-btn" class="btn btn-outline"><span id="next-label"></span> &#8250;</button>
     </div>
 
     <div id="loading" class="loading" hidden>Loading tide data…</div>
