@@ -167,6 +167,35 @@ input[type="month"] {
 }
 .river-notice a { color: #495057; }
 
+.river-level-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+  flex-wrap: wrap;
+}
+.river-level-time { font-size: 0.75rem; opacity: 0.75; }
+
+.river-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+}
+.river-bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(0,0,0,0.12);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.river-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.river-bar-max { font-size: 0.72rem; opacity: 0.65; white-space: nowrap; }
+
 .badge {
   display: inline-block;
   padding: 0.15em 0.55em;

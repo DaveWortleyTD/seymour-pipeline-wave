@@ -1,0 +1,42 @@
+name: Fetch River Level
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # every 30 minutes
+  workflow_dispatch:           # allow manual trigger from Actions tab
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch and extract river level
+        run: |
+          curl -sf 'https://info.metrovancouver.org/jwup/Charts/SeymourRiverLevel/data.txt' \
+            -o /tmp/river.json
+          node -e "
+            const d = JSON.parse(require('fs').readFileSync('/tmp/river.json'));
+            const series = d.dataSeries[0];
+            const lastIdx = series.data.length - 1;
+            const lastTime = new Date(
+              new Date(d.startTime).getTime() + lastIdx * series.pointInterval * 60000
+            );
+            const out = {
+              level:   series.data[lastIdx],
+              max:     series.max,
+              time:    lastTime.toISOString(),
+              fetched: new Date().toISOString()
+            };
+            require('fs').writeFileSync('river-cache.json', JSON.stringify(out));
+          "
+
+      - name: Commit if changed
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add river-cache.json
+          git diff --staged --quiet || git commit -m 'chore: update river level cache'
+          git push

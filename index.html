@@ -53,8 +53,19 @@
         — click to show tides outside daylight hours
       </div>
       <div class="river-notice">
-        ⚠ <strong>River flow is the primary condition.</strong> The wave forms over an underwater pipeline when the Seymour River is running high (gauge &gt; 6–7) <em>and</em> the tide is below 3.0m. Always check the
-        <a href="https://metrovancouver.org/services/water/seymour-and-capilano-river-levels" target="_blank">Metro Vancouver Seymour River gauge →</a>
+        ⚠ <strong>River flow is the primary condition.</strong> The wave forms over an underwater pipeline when the Seymour River is running high <em>and</em> the tide is below 3.0m.
+        <div class="river-level-row">
+          <span>Current level:</span>
+          <strong id="river-level-value">loading…</strong>
+          <span id="river-level-time" class="river-level-time"></span>
+        </div>
+        <div class="river-bar-wrap" id="river-bar-wrap" hidden>
+          <div class="river-bar-track">
+            <div class="river-bar-fill" id="river-bar-fill"></div>
+          </div>
+          <span class="river-bar-max" id="river-bar-max"></span>
+        </div>
+        <a href="https://metrovancouver.org/services/water/seymour-and-capilano-river-levels" target="_blank">View full Seymour River gauge →</a>
       </div>
     </div>
 
@@ -382,9 +393,44 @@ document.getElementById('app').addEventListener('click', e => {
   if (badge && badge.title) openSessionPopup(badge);
 });
 
+// ── River level ────────────────────────────────────────────────────────────
+async function updateRiverLevel() {
+  const levelEl   = document.getElementById('river-level-value');
+  const timeEl    = document.getElementById('river-level-time');
+  const barWrap   = document.getElementById('river-bar-wrap');
+  const barFill   = document.getElementById('river-bar-fill');
+  const barMaxEl  = document.getElementById('river-bar-max');
+
+  try {
+    const resp = await fetch('./river-cache.json');
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const json = await resp.json();
+
+    if (!json.level) throw new Error('No data yet');
+
+    const level    = json.level;
+    const maxLevel = json.max;
+    const lastTime = new Date(json.time);
+
+    levelEl.textContent = `${level.toFixed(2)} m`;
+    timeEl.textContent  = `as of ${fmtTime(lastTime)}`;
+
+    // Bar showing level vs historical max
+    const pct = Math.min(100, (level / maxLevel) * 100);
+    barFill.style.width = `${pct}%`;
+    barFill.style.background = pct > 60 ? '#28a745' : pct > 30 ? '#fd7e14' : '#506690';
+    barMaxEl.textContent = `max ${maxLevel.toFixed(2)} m`;
+    barWrap.hidden = false;
+  } catch {
+    levelEl.textContent = 'unavailable';
+    timeEl.textContent  = '';
+  }
+}
+
 // ── Init ───────────────────────────────────────────────────────────────────
 syncNightToggle();
 load(currentYear, currentMonth);
+updateRiverLevel();
 </script>
 
 <script>
